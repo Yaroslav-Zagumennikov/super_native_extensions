@@ -260,13 +260,46 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
           hitTestBehavior: widget.hitTestBehavior,
           getConfiguration: getMenuConfiguration,
           contextMenuIsAllowed: widget.contextMenuIsAllowed,
-          child: _LongPressDetector(
+          child: _TapDetector(
             hitTestBehavior: widget.hitTestBehavior,
             contextMenuIsAllowed: widget.contextMenuIsAllowed,
             child: widget.child,
+            getMenuConfiguration: getMenuConfiguration,
           ),
         ),
       ),
+    );
+  }
+}
+
+class _TapDetector extends StatelessWidget {
+  final Widget child;
+  final HitTestBehavior hitTestBehavior;
+  final ContextMenuIsAllowed contextMenuIsAllowed;
+  final Future<MobileMenuConfiguration?> Function(MobileMenuConfigurationRequest) getMenuConfiguration;
+
+  const _TapDetector({
+    required this.hitTestBehavior,
+    required this.contextMenuIsAllowed,
+    required this.child,
+    required this.getMenuConfiguration,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: hitTestBehavior,
+      onTap: () async {
+        if (contextMenuIsAllowed(Offset.zero)) {
+          final request = MobileMenuConfigurationRequest(
+            location: Offset.zero,
+            configurationId: UniqueKey().toString(),
+            previewImageSetter: (snapshot) {},
+          );
+          await getMenuConfiguration(request);
+        }
+      },
+      child: child,
     );
   }
 }
