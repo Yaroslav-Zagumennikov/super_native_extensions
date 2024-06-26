@@ -235,36 +235,26 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
   Widget build(BuildContext context) {
     return WidgetSnapshotter(
       key: _snapshotterKey,
-      child: Listener(
+      child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) {
+        onTap: () {
           if (defaultTargetPlatform == TargetPlatform.iOS ||
               defaultTargetPlatform == TargetPlatform.android) {
-            {
+            _snapshotterKey.currentState?.registerWidget(
+                _keyLift,
+                widget.liftBuilder?.call(
+                  context,
+                  widget.child,
+                ));
+            if (widget.previewBuilder != null) {
               _snapshotterKey.currentState?.registerWidget(
-                  _keyLift,
-                  widget.liftBuilder?.call(
+                  _keyPreview,
+                  widget.previewBuilder!.call(
                     context,
                     widget.child,
                   ));
-              if (widget.previewBuilder != null) {
-                _snapshotterKey.currentState?.registerWidget(
-                    _keyPreview,
-                    widget.previewBuilder!.call(
-                      context,
-                      widget.child,
-                    ));
-              }
             }
           }
-        },
-        onPointerCancel: (_) {
-          _snapshotterKey.currentState?.unregisterWidget(_keyLift);
-          _snapshotterKey.currentState?.unregisterWidget(_keyPreview);
-        },
-        onPointerUp: (_) {
-          _snapshotterKey.currentState?.unregisterWidget(_keyLift);
-          _snapshotterKey.currentState?.unregisterWidget(_keyPreview);
         },
         child: BaseContextMenuRenderWidget(
           hitTestBehavior: widget.hitTestBehavior,
